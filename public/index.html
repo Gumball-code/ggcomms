@@ -2,91 +2,114 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Simple Poker Lobby & Table</title>
+  <title>Sleek Hold'em — Demo</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <style>
-    :root{ --bg:#071021; --card:#0b1220; --muted:#9aa7bb; --accent:#3b82f6; --txt:#ecf0f7;}
-    body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#051021,#071426);color:var(--txt)}
-    .wrap{max-width:1100px;margin:18px auto;padding:12px;display:grid;grid-template-columns:300px 1fr;gap:12px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px;box-shadow:0 6px 22px rgba(1,8,20,0.6)}
-    .sidebar h3{margin:0 0 8px 0}
-    .btn{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:white;cursor:pointer}
+    /* Minimal sleek design */
+    :root{
+      --bg:#071426; --card:#0b1220; --muted:#9aa7bb; --accent:#06b6d4; --accent-2:#3b82f6; --text:#e6eef6;
+      --glass: rgba(255,255,255,0.03);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:linear-gradient(180deg,#041223,#071426);color:var(--text);-webkit-font-smoothing:antialiased}
+    .container{max-width:1200px;margin:18px auto;padding:12px;display:grid;grid-template-columns:320px 1fr;gap:14px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:12px;box-shadow:0 8px 30px rgba(2,8,20,0.6)}
+    .sidebar h2{margin:0 0 10px 0}
     .muted{color:var(--muted);font-size:13px}
-    .seats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .seat{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;min-height:72px;display:flex;flex-direction:column;justify-content:space-between}
-    .seat .name{font-weight:700}
-    .table-area{display:flex;flex-direction:column;height:80vh}
-    .table-board{flex:0 0 260px;background:url('') center/cover no-repeat;border-radius:10px;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-    .community{display:flex;gap:8px;margin-bottom:10px}
-    .card-spot{width:56px;height:80px;border-radius:6px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700}
-    .hole{width:46px;height:66px;border-radius:6px;background:rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;font-weight:700}
-    .controls{display:flex;gap:8px;margin-top:8px}
-    .players-list{display:flex;gap:8px;flex-wrap:wrap}
-    .chat{height:200px;overflow:auto;padding:8px;background:rgba(0,0,0,0.1);border-radius:8px}
-    .small{font-size:12px;color:var(--muted)}
-    .center{display:flex;align-items:center;justify-content:center}
-    .dealer-badge{background:#ffd54d;color:#111;padding:6px;border-radius:8px;font-weight:700}
-    input[type="text"], input[type="number"]{padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--txt)}
+    .row{display:flex;gap:8px;align-items:center}
+    input[type="text"], input[type="number"]{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text)}
+    button{cursor:pointer;padding:8px 10px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#041426;font-weight:700}
+    .small{font-size:13px;color:var(--muted)}
+    /* table area */
+    .table-area{display:flex;flex-direction:column;height:78vh}
+    .table-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .board{flex:0 0 260px;border-radius:12px;padding:14px;background:linear-gradient(180deg,#052233,#072a3a);display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .community{display:flex;gap:10px;margin-bottom:10px}
+    .card-spot{width:64px;height:88px;border-radius:8px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px}
+    .seats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    .seat{padding:8px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));min-height:90px;display:flex;flex-direction:column;justify-content:space-between}
+    .seat .name{font-weight:800}
+    .seat .chips{color:var(--muted);font-size:13px}
+    .hole-cards{display:flex;gap:6px;margin-top:8px}
+    .hole{width:48px;height:64px;border-radius:6px;background:linear-gradient(180deg,#071426,#0b2740);display:flex;align-items:center;justify-content:center;font-weight:800}
+    .actions{display:flex;gap:8px;align-items:center;margin-top:14px}
+    .chat{height:120px;overflow:auto;padding:8px;border-radius:8px;background:rgba(255,255,255,0.01)}
+    .players-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .badge{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:700}
+    @media (max-width:900px){ .container{grid-template-columns:1fr; padding:8px} .table-area{height:auto} .board{height:220px} }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="container">
     <div class="card sidebar">
-      <h3>Lobby</h3>
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <input id="username" placeholder="username" />
-        <button id="setname" class="btn">Set</button>
-      </div>
-      <div style="margin-bottom:8px">
-        <button id="becomeOwner" class="btn">Become Table Owner</button>
-      </div>
-      <div style="margin-bottom:10px">
-        <label class="small">Seat number (0-5)</label>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <input id="seatNum" type="number" min="0" max="5" value="0" style="width:70px"/>
-          <input id="buyIn" type="number" min="100" value="100" style="width:110px"/>
-          <button id="sitBtn" class="btn">Sit</button>
+      <h2>Sleek Hold'em</h2>
+      <div class="muted">Simple demo table. Owner controls start/reset hands.</div>
+
+      <div style="margin-top:12px">
+        <label class="small">Username</label>
+        <div class="row" style="margin-top:6px">
+          <input id="username" placeholder="Your name" />
+          <button id="setNameBtn">Set</button>
         </div>
       </div>
 
-      <div style="margin-top:10px">
-        <button id="standBtn" class="btn" style="background:#ef4444">Stand</button>
+      <div style="margin-top:12px">
+        <button id="becomeOwnerBtn">Become Table Owner</button>
       </div>
 
-      <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:10px 0"/>
+      <div style="margin-top:12px">
+        <label class="small">Sit at seat</label>
+        <div class="row" style="margin-top:6px">
+          <input id="seatIndex" type="number" min="0" max="5" value="0" style="width:80px"/>
+          <input id="buyin" type="number" min="100" value="500" style="width:110px"/>
+          <button id="sitBtn">Sit</button>
+        </div>
+        <div style="margin-top:8px">
+          <button id="standBtn" style="background:#ef4444;color:white">Stand</button>
+        </div>
+      </div>
+
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:12px 0"/>
 
       <div>
-        <div class="small">Table Controls (owner)</div>
+        <div class="small">Owner Controls</div>
         <div style="display:flex;gap:8px;margin-top:8px">
-          <button id="startHand" class="btn">Start Hand</button>
-          <button id="kickBtn" class="btn" style="background:#ef4444">Kick</button>
+          <button id="startHandBtn">Start Hand</button>
+          <button id="kickBtn" style="background:#ef4444;color:white">Kick seat</button>
         </div>
         <div style="margin-top:8px" class="small">Blinds: <span id="blindsText">10 / 20</span></div>
       </div>
 
-      <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:10px 0"/>
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:12px 0"/>
+
       <div>
-        <div class="small">Chat</div>
-        <div id="chat" class="chat"></div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <input id="chatMsg" placeholder="say something" />
-          <button id="sendChat" class="btn">Send</button>
+        <div class="small">Table chat</div>
+        <div id="chatBox" class="chat"></div>
+        <div class="row" style="margin-top:8px">
+          <input id="chatInput" placeholder="Say something" />
+          <button id="sendChatBtn">Send</button>
         </div>
       </div>
     </div>
 
     <div class="card table-area">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div><strong>Table</strong> <span class="small" id="tablePhase">idle</span></div>
-        <div class="small">Pot: <span id="pot">0</span></div>
+      <div class="table-top">
+        <div>
+          <div style="font-weight:900">Table • <span id="phase" class="muted">idle</span></div>
+          <div class="small">Dealer: <span id="dealerIdx">-</span></div>
+        </div>
+        <div style="text-align:right">
+          <div class="small">Pot</div>
+          <div class="badge" id="potTotal">0</div>
+        </div>
       </div>
 
-      <div class="table-board card" style="height:260px">
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
-          <div id="dealerBadge" class="dealer-badge" style="display:none">D</div>
-          <div style="font-weight:700" id="tableTitle">Texas Hold'em</div>
+      <div class="board card">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
+          <div style="font-size:20px;font-weight:900">Community</div>
+          <div class="small">(revealed when dealt)</div>
         </div>
-
         <div class="community" id="community">
           <div class="card-spot">--</div>
           <div class="card-spot">--</div>
@@ -94,207 +117,274 @@
           <div class="card-spot">--</div>
           <div class="card-spot">--</div>
         </div>
-
-        <div style="margin-top:6px" class="small">Dealer rotates each hand</div>
+        <div class="small">Dealer rotates each hand</div>
       </div>
 
       <div style="margin-top:12px">
         <div class="small">Seats</div>
-        <div class="seats" id="seats"></div>
+        <div class="seats-grid" id="seatsGrid"></div>
       </div>
 
-      <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
-        <div class="small">Player actions</div>
-        <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-          <button id="foldBtn" class="btn">Fold</button>
-          <button id="callBtn" class="btn">Check/Call</button>
-          <input id="betAmount" type="number" min="1" value="20" style="width:90px"/>
-          <button id="betBtn" class="btn">Bet/Raise</button>
+      <div class="actions">
+        <div class="small">Actions</div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <button id="foldBtn" style="background:#ef4444;color:white">Fold</button>
+          <button id="callBtn">Check/Call</button>
+          <input id="raiseAmt" type="number" value="50" style="width:100px;padding:8px;border-radius:8px"/>
+          <button id="raiseBtn">Bet/Raise</button>
+          <button id="allinBtn" style="background:#ffd54d">All-in</button>
         </div>
       </div>
 
-      <div style="margin-top:12px">
-        <div class="small">Players / Seats</div>
+      <div style="margin-top:14px">
+        <div class="small">Players</div>
         <div id="playersList" class="players-list"></div>
       </div>
-
     </div>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  // Client-side logic
+  const socket = io();
 
-    // DOM
-    const usernameInput = document.getElementById('username');
-    const setnameBtn = document.getElementById('setname');
-    const becomeOwnerBtn = document.getElementById('becomeOwner');
-    const sitBtn = document.getElementById('sitBtn');
-    const seatNumInput = document.getElementById('seatNum');
-    const buyInInput = document.getElementById('buyIn');
-    const standBtn = document.getElementById('standBtn');
-    const startHandBtn = document.getElementById('startHand');
-    const kickBtn = document.getElementById('kickBtn');
+  // DOM refs
+  const setNameBtn = document.getElementById('setNameBtn');
+  const usernameInput = document.getElementById('username');
+  const becomeOwnerBtn = document.getElementById('becomeOwnerBtn');
+  const seatIndexInput = document.getElementById('seatIndex');
+  const buyinInput = document.getElementById('buyin');
+  const sitBtn = document.getElementById('sitBtn');
+  const standBtn = document.getElementById('standBtn');
+  const startHandBtn = document.getElementById('startHandBtn');
+  const kickBtn = document.getElementById('kickBtn');
+  const blindsText = document.getElementById('blindsText');
+  const chatBox = document.getElementById('chatBox');
+  const chatInput = document.getElementById('chatInput');
+  const sendChatBtn = document.getElementById('sendChatBtn');
 
-    const seatsDiv = document.getElementById('seats');
-    const communityDiv = document.getElementById('community');
-    const tablePhase = document.getElementById('tablePhase');
-    const potSpan = document.getElementById('pot');
-    const blindsText = document.getElementById('blindsText');
-    const chatDiv = document.getElementById('chat');
-    const chatMsg = document.getElementById('chatMsg');
-    const sendChatBtn = document.getElementById('sendChat');
-    const dealerBadge = document.getElementById('dealerBadge');
-    const foldBtn = document.getElementById('foldBtn');
-    const callBtn = document.getElementById('callBtn');
-    const betBtn = document.getElementById('betBtn');
-    const betAmountInput = document.getElementById('betAmount');
-    const playersList = document.getElementById('playersList');
+  const communityDiv = document.getElementById('community');
+  const seatsGrid = document.getElementById('seatsGrid');
+  const phaseSpan = document.getElementById('phase');
+  const dealerIdxSpan = document.getElementById('dealerIdx');
+  const potTotalSpan = document.getElementById('potTotal');
+  const playersList = document.getElementById('playersList');
 
-    let myUsername = null;
-    let mySeat = null;
-    let tableOwner = null;
+  const foldBtn = document.getElementById('foldBtn');
+  const callBtn = document.getElementById('callBtn');
+  const raiseBtn = document.getElementById('raiseBtn');
+  const raiseAmtInput = document.getElementById('raiseAmt');
+  const allinBtn = document.getElementById('allinBtn');
 
-    // simple chat
-    sendChatBtn.onclick = () => {
-      const t = chatMsg.value.trim();
-      if (!t) return;
-      socket.emit('chat', t);
-      chatMsg.value = '';
-    };
+  let myUsername = null;
+  let mySeat = null;
+  let lastState = null;
 
-    socket.on('connect', () => {
-      appendChat('Connected to server');
+  function appendChat(msg) {
+    const d = document.createElement('div');
+    d.textContent = msg;
+    chatBox.appendChild(d);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  setNameBtn.onclick = () => {
+    const name = usernameInput.value.trim();
+    if (!name) return alert('enter name');
+    socket.emit('set username', name, res => {
+      if (!res || !res.ok) return alert('error: ' + (res && res.error));
+      myUsername = res.username;
+      appendChat('You are: ' + myUsername);
     });
+  };
 
-    // set username
-    setnameBtn.onclick = () => {
-      const name = usernameInput.value.trim();
-      if (!name) return alert('enter name');
-      socket.emit('set username', name, (res) => {
-        if (!res || !res.ok) return alert('error: ' + (res && res.error));
-        myUsername = res.username;
-        appendChat('username set: ' + myUsername);
-      });
-    };
+  becomeOwnerBtn.onclick = () => {
+    socket.emit('become owner', res => {
+      if (!res || !res.ok) return alert('cannot become owner');
+      appendChat('You are owner now (server enforces permissions).');
+    });
+  };
 
-    becomeOwnerBtn.onclick = () => {
-      socket.emit('become owner', (res) => {
-        if (!res || !res.ok) return alert('cant become owner');
-        appendChat('you are table owner');
-      });
-    };
+  sitBtn.onclick = () => {
+    const seat = Number(seatIndexInput.value);
+    const buyin = Number(buyinInput.value);
+    socket.emit('sit', { seat, buyIn: buyin }, res => {
+      if (!res || !res.ok) return alert('sit failed: ' + (res && res.error));
+    });
+  };
 
-    sitBtn.onclick = () => {
-      const seat = Number(seatNumInput.value);
-      const buyIn = Number(buyInInput.value);
-      socket.emit('sit', { seat, buyIn }, (res) => {
-        if (!res || !res.ok) return alert('sit failed: ' + (res && res.error));
-        appendChat('sat at ' + seat);
-      });
-    };
+  standBtn.onclick = () => {
+    socket.emit('stand', res => {
+      appendChat('Stood up');
+    });
+  };
 
-    standBtn.onclick = () => {
-      socket.emit('stand', (res) => {
-        appendChat('stood up');
-      });
-    };
+  startHandBtn.onclick = () => {
+    socket.emit('start hand', res => {
+      if (!res || !res.ok) return alert('start failed: ' + (res && res.error));
+    });
+  };
 
-    startHandBtn.onclick = () => {
-      socket.emit('start hand', (res) => {
-        if (!res || !res.ok) return alert('start failed: ' + (res && res.error));
-        appendChat('hand started');
-      });
-    };
+  kickBtn.onclick = () => {
+    const s = Number(prompt('Seat to kick (0-5)'));
+    if (isNaN(s)) return;
+    socket.emit('kick', s, res => { appendChat('Kick requested'); });
+  };
 
-    kickBtn.onclick = () => {
-      const s = Number(prompt('seat index to kick (0-5)'));
-      if (isNaN(s)) return;
-      socket.emit('kick', s, (res) => {
-        appendChat('kick command sent');
-      });
-    };
+  sendChatBtn.onclick = () => {
+    const txt = chatInput.value.trim();
+    if (!txt) return;
+    socket.emit('chat', txt);
+    chatInput.value = '';
+  };
 
-    // actions
-    foldBtn.onclick = () => socket.emit('action', { type: 'fold' }, (r)=>{});
-    callBtn.onclick = () => socket.emit('action', { type: 'check_call' }, (r)=>{});
-    betBtn.onclick = () => {
-      const amt = Number(betAmountInput.value);
-      socket.emit('action', { type: 'bet_raise', amount: amt }, (r)=>{ if (r && r.error) alert(r.error);});
-    };
+  // actions
+  foldBtn.onclick = () => {
+    socket.emit('action', { type: 'fold' }, res => { if (res && res.error) alert(res.error); });
+  };
+  callBtn.onclick = () => {
+    socket.emit('action', { type: 'call' }, res => { if (res && res.error) alert(res.error); });
+  };
+  raiseBtn.onclick = () => {
+    const amt = Number(raiseAmtInput.value);
+    if (isNaN(amt) || amt <= 0) return alert('invalid amount');
+    socket.emit('action', { type: 'raise', amount: amt }, res => { if (res && res.error) alert(res.error); });
+  };
+  allinBtn.onclick = () => {
+    if (!confirm('Go all-in?')) return;
+    socket.emit('action', { type: 'allin' }, res => { if (res && res.error) alert(res.error); });
+  };
 
-    // server-sent table state
-    socket.on('table state', (t) => {
-      // update UI
-      tablePhase.textContent = t.phase;
-      potSpan.textContent = t.pot || 0;
-      blindsText.textContent = (t.smallBlind || 10) + ' / ' + (t.bigBlind || 20);
-      // render community
-      const com = t.community || [];
-      const spots = communityDiv.querySelectorAll('.card-spot');
-      for (let i=0;i<5;i++) {
-        spots[i].textContent = com[i] || '--';
-      }
-      // render seats
-      seatsDiv.innerHTML = '';
-      playersList.innerHTML = '';
-      mySeat = null;
-      for (let i=0;i< (t.seats ? t.seats.length : 0); i++) {
-        const s = t.seats[i];
-        const div = document.createElement('div');
-        div.className = 'seat';
-        if (s) {
-          const name = document.createElement('div'); name.className = 'name'; name.textContent = s.username;
-          const chips = document.createElement('div'); chips.className='small'; chips.textContent = 'Chips: ' + s.chips;
-          const seatInfo = document.createElement('div'); seatInfo.className='small'; seatInfo.textContent = 'Seat ' + i + (s.currentBet ? ' • Bet: ' + s.currentBet : '');
-          div.appendChild(name); div.appendChild(chips); div.appendChild(seatInfo);
-          // reveal hole only for owner of that seat
-          if (s.hole) {
-            const h = document.createElement('div'); h.style.display='flex'; h.style.gap='6px';
-            for (const c of s.hole) {
-              const el = document.createElement('div'); el.className='hole'; el.textContent = c;
-              h.appendChild(el);
-            }
-            div.appendChild(h);
+  // render state
+  function renderState(s) {
+    lastState = s;
+    phaseSpan.textContent = s.phase;
+    dealerIdxSpan.textContent = (s.dealer === -1 ? '-' : s.dealer);
+    potTotalSpan.textContent = s.potTotal || 0;
+    blindsText.textContent = (s.smallBlind || 10) + ' / ' + (s.bigBlind || 20);
+
+    // community
+    const com = s.community || [];
+    const spots = communityDiv.children;
+    for (let i = 0; i < 5; i++) spots[i].textContent = com[i] || '--';
+
+    // seats
+    seatsGrid.innerHTML = '';
+    playersList.innerHTML = '';
+    mySeat = null;
+    for (let i = 0; i < (s.seats ? s.seats.length : 0); i++) {
+      const seat = s.seats[i];
+      const div = document.createElement('div');
+      div.className = 'seat';
+      if (seat) {
+        const name = document.createElement('div'); name.className = 'name'; name.textContent = seat.username + (seat.id ? (' • ' + seat.id.slice(0,4)) : '');
+        const chips = document.createElement('div'); chips.className = 'chips'; chips.textContent = 'Chips: ' + seat.chips;
+        const contribution = document.createElement('div'); contribution.className = 'small'; contribution.textContent = 'Contrib: ' + (seat.contribution || 0);
+        div.appendChild(name); div.appendChild(chips); div.appendChild(contribution);
+        // hole cards
+        if (seat.hole) {
+          const hwrap = document.createElement('div'); hwrap.className = 'hole-cards';
+          for (const c of seat.hole) {
+            const hc = document.createElement('div'); hc.className = 'hole'; hc.textContent = c;
+            hwrap.appendChild(hc);
           }
-          if (t.dealerIndex === i) {
-            const d = document.createElement('div'); d.className='small'; d.textContent = 'Dealer';
-            div.appendChild(d);
-          }
-          playersList.appendChild(div);
-        } else {
-          const empty = document.createElement('div');
-          empty.className = 'small';
-          empty.textContent = 'empty (seat ' + i + ')';
-          div.appendChild(empty);
+          div.appendChild(hwrap);
         }
-        seatsDiv.appendChild(div);
+        // dealer badge
+        if (s.dealer === i) {
+          const d = document.createElement('div'); d.className = 'small'; d.textContent = 'Dealer';
+          div.appendChild(d);
+        }
+        // current bet indicator
+        if (seat.currentBet && seat.currentBet > 0) {
+          const cb = document.createElement('div'); cb.className = 'small'; cb.textContent = 'Bet: ' + seat.currentBet;
+          div.appendChild(cb);
+        }
+        // add to players list
+        const pl = document.createElement('div'); pl.className = 'badge'; pl.textContent = seat.username + ' (' + seat.chips + ')';
+        playersList.appendChild(pl);
+      } else {
+        const empty = document.createElement('div'); empty.className = 'small'; empty.textContent = 'Empty (seat ' + i + ')';
+        div.appendChild(empty);
       }
-      // dealer badge
-      if (t.dealerIndex !== null && t.seats[t.dealerIndex]) {
-        dealerBadge.style.display = 'inline-block';
-      } else dealerBadge.style.display = 'none';
-
-      // show/hide owner controls
-      // we can't easily know if we're the owner from client, but server includes owner id as socket id; the client cannot see socket id directly.
-      // For simplicity: if my username matches owner username in seats mapping, assume owner (owner feature limited).
-      // Not perfect: owner is socket id; we don't know mapping. We'll show owner controls always and server will reject unauthorized calls.
-    });
-
-    // chat messages (server doesn't implement chat routing in server.js above; just show locally)
-    socket.on('lobby', (m) => {
-      appendChat('Server: ' + (m.message || JSON.stringify(m)));
-    });
-
-    function appendChat(t) {
-      const d = document.createElement('div');
-      d.textContent = t;
-      chatDiv.appendChild(d);
-      chatDiv.scrollTop = chatDiv.scrollHeight;
+      seatsGrid.appendChild(div);
+      // detect my seat
+      if (seat && seat.id && localStorage.getItem('mySeatId') === seat.id) mySeat = i;
+      if (seat && seat.socketId === socket.id) mySeat = i;
     }
 
-    // debug prints
-    socket.on('connect_error', (e) => appendChat('connect error: ' + e.message));
-  </script>
+    // highlight current turn by enabling/disabling action buttons
+    if (s.currentTurnSeat !== null && s.currentTurnSeat !== undefined) {
+      if (s.currentTurnSeat === mySeat) {
+        foldBtn.disabled = false; callBtn.disabled = false; raiseBtn.disabled = false; allinBtn.disabled = false;
+      } else {
+        foldBtn.disabled = true; callBtn.disabled = true; raiseBtn.disabled = true; allinBtn.disabled = true;
+      }
+    } else {
+      foldBtn.disabled = true; callBtn.disabled = true; raiseBtn.disabled = true; allinBtn.disabled = true;
+    }
+  }
+
+  // initialize board spots
+  (function initBoard() {
+    communityDiv.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const sp = document.createElement('div'); sp.className = 'card-spot'; sp.textContent = '--';
+      communityDiv.appendChild(sp);
+    }
+  })();
+
+  socket.on('state', (s) => {
+    renderState(s);
+  });
+
+  socket.on('welcome', (m) => {
+    appendChat('Connected — socket id assigned');
+  });
+
+  socket.on('chat', (m) => {
+    appendChat((m.from || 'anon') + ': ' + m.text);
+  });
+
+  socket.on('connect_error', (e) => appendChat('connect error: ' + e.message));
+
+  // store seat id locally to re-identify owner seat
+  // Note: server gives seat.id to client in seat info; we preserve if sitting
+  // Save after every state update
+  (function patchLocalSeatTracker() {
+    const origRender = renderState;
+    renderState = function(s) {
+      origRender(s);
+      // find seat that belongs to me by matching socket id (server would show socketId only on seats owning current client? Not included)
+      if (!s.seats) return;
+      for (const seat of s.seats) {
+        if (!seat) continue;
+        // heuristic: if username equals stored username and no id mismatch, try store id
+        const storedName = localStorage.getItem('myUsername');
+        if (storedName && seat.username === storedName && seat.id) {
+          localStorage.setItem('mySeatId', seat.id);
+        }
+      }
+    };
+  })();
+
+  // persist username
+  usernameInput.value = localStorage.getItem('myUsername') || '';
+  setNameBtn.onclick = () => {
+    const name = usernameInput.value.trim();
+    if (!name) return alert('enter name');
+    socket.emit('set username', name, res => {
+      if (res && res.ok) {
+        localStorage.setItem('myUsername', name);
+        myUsername = name;
+        appendChat('username set: ' + name);
+      }
+    });
+  };
+
+  // restore if we had seatId prior
+  const existingSeatId = localStorage.getItem('mySeatId');
+  if (existingSeatId) appendChat('Remembered seat id: ' + existingSeatId);
+
+</script>
 </body>
 </html>
