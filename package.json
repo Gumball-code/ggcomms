@@ -1,7 +1,7 @@
 {
-  "name": "simple-poker",
+  "name": "simple-holdem",
   "version": "1.0.0",
-  "description": "Minimal lobby + texas holdem demo (Socket.IO)",
+  "description": "Minimal Texas Hold'em demo with lobby and single table (Socket.IO)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,6 +9,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
-    "cookie-parser": "^1.4.6"
+    "cookie-parser": "^1.4.6",
+    "uuid": "^9.0.0"
   }
 }
