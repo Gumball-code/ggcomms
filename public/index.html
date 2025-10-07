@@ -1,283 +1,300 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Simple Chat</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <title>Simple Poker Lobby & Table</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <style>
-    /* Minimal clean styles */
-    :root{
-      --bg:#0f1724; --card:#0b1220; --muted:#9aa7bb; --accent:#3b82f6; --accent-2:#06b6d4;
-      --txt:#ecf0f7;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071021, #081426);color:var(--txt)}
-    .wrap{max-width:1100px;margin:24px auto;padding:18px;display:grid;grid-template-columns:320px 1fr;gap:18px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-    .sidebar{display:flex;flex-direction:column;height:82vh}
-    .brand{font-weight:700;font-size:20px;margin-bottom:8px;color:var(--accent)}
-    .user-control{margin-bottom:12px}
-    input[type="text"].username{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--txt)}
-    button{cursor:pointer;padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:white;font-weight:600}
-    .users-list{flex:1;overflow:auto;margin-top:8px;padding:8px;border-radius:8px;border:1px dashed rgba(255,255,255,0.02)}
-    .users-list .user{padding:6px 8px;border-radius:6px;margin-bottom:6px;background:rgba(255,255,255,0.01);display:flex;justify-content:space-between;align-items:center}
-    .chat-area{display:flex;flex-direction:column;height:82vh}
-    .messages{flex:1;overflow:auto;padding:12px;border-radius:12px;border:1px dashed rgba(255,255,255,0.02);margin-bottom:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
-    .msg{margin-bottom:10px}
-    .msg .meta{font-size:12px;color:var(--muted)}
-    .msg .text{background:rgba(255,255,255,0.03);display:inline-block;padding:8px 10px;border-radius:8px;margin-top:4px;max-width:80%}
-    .msg.me .text{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#022}
-    .controls{display:flex;gap:8px}
-    input[type="text"].message{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--txt)}
-    .hint{font-size:12px;color:var(--muted);margin-top:8px}
-    .typing{font-size:13px;color:var(--muted);height:18px}
-    .system{font-size:13px;color:var(--muted);font-style:italic;margin-bottom:8px}
-    .private-badge{font-size:11px;background:#2b3440;padding:4px 6px;border-radius:6px;color:var(--muted);margin-left:8px}
-    .top-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .logo{font-size:18px;font-weight:700;color:var(--accent)}
-    @media (max-width:880px){.wrap{grid-template-columns:1fr;padding:12px}.sidebar{order:2;height:auto}.chat-area{order:1;height:72vh}}
+    :root{ --bg:#071021; --card:#0b1220; --muted:#9aa7bb; --accent:#3b82f6; --txt:#ecf0f7;}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#051021,#071426);color:var(--txt)}
+    .wrap{max-width:1100px;margin:18px auto;padding:12px;display:grid;grid-template-columns:300px 1fr;gap:12px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px;box-shadow:0 6px 22px rgba(1,8,20,0.6)}
+    .sidebar h3{margin:0 0 8px 0}
+    .btn{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:white;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .seats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .seat{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;min-height:72px;display:flex;flex-direction:column;justify-content:space-between}
+    .seat .name{font-weight:700}
+    .table-area{display:flex;flex-direction:column;height:80vh}
+    .table-board{flex:0 0 260px;background:url('') center/cover no-repeat;border-radius:10px;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .community{display:flex;gap:8px;margin-bottom:10px}
+    .card-spot{width:56px;height:80px;border-radius:6px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .hole{width:46px;height:66px;border-radius:6px;background:rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .controls{display:flex;gap:8px;margin-top:8px}
+    .players-list{display:flex;gap:8px;flex-wrap:wrap}
+    .chat{height:200px;overflow:auto;padding:8px;background:rgba(0,0,0,0.1);border-radius:8px}
+    .small{font-size:12px;color:var(--muted)}
+    .center{display:flex;align-items:center;justify-content:center}
+    .dealer-badge{background:#ffd54d;color:#111;padding:6px;border-radius:8px;font-weight:700}
+    input[type="text"], input[type="number"]{padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--txt)}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card sidebar">
-      <div class="brand"><span class="logo">Chatterbox</span> — realtime</div>
-
-      <div class="user-control">
-        <label style="font-size:13px;color:var(--muted)">Choose a username</label>
+      <h3>Lobby</h3>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input id="username" placeholder="username" />
+        <button id="setname" class="btn">Set</button>
+      </div>
+      <div style="margin-bottom:8px">
+        <button id="becomeOwner" class="btn">Become Table Owner</button>
+      </div>
+      <div style="margin-bottom:10px">
+        <label class="small">Seat number (0-5)</label>
         <div style="display:flex;gap:8px;margin-top:6px">
-          <input id="usernameInput" class="username" placeholder="your display name" maxlength="32" />
-          <button id="setUsernameBtn">Join</button>
+          <input id="seatNum" type="number" min="0" max="5" value="0" style="width:70px"/>
+          <input id="buyIn" type="number" min="100" value="100" style="width:110px"/>
+          <button id="sitBtn" class="btn">Sit</button>
         </div>
-        <div class="hint">Private messages: start a message with <code>@username message</code></div>
       </div>
 
-      <div class="top-info" style="margin-bottom:6px">
-        <div style="font-size:13px;color:var(--muted)">Online</div>
-        <div style="font-size:12px;color:var(--muted)" id="onlineCount">0</div>
+      <div style="margin-top:10px">
+        <button id="standBtn" class="btn" style="background:#ef4444">Stand</button>
       </div>
 
-      <div class="users-list card" id="usersList" aria-live="polite"></div>
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:10px 0"/>
 
-      <div style="margin-top:10px;font-size:12px;color:var(--muted)">
-        Built for demo. Refresh to reconnect. No account required.
+      <div>
+        <div class="small">Table Controls (owner)</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="startHand" class="btn">Start Hand</button>
+          <button id="kickBtn" class="btn" style="background:#ef4444">Kick</button>
+        </div>
+        <div style="margin-top:8px" class="small">Blinds: <span id="blindsText">10 / 20</span></div>
+      </div>
+
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:10px 0"/>
+      <div>
+        <div class="small">Chat</div>
+        <div id="chat" class="chat"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="chatMsg" placeholder="say something" />
+          <button id="sendChat" class="btn">Send</button>
+        </div>
       </div>
     </div>
 
-    <div class="card chat-area">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-weight:700">Global Chat</div>
-        <div style="font-size:12px;color:var(--muted)" id="myName">not signed in</div>
+    <div class="card table-area">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div><strong>Table</strong> <span class="small" id="tablePhase">idle</span></div>
+        <div class="small">Pot: <span id="pot">0</span></div>
       </div>
 
-      <div class="messages" id="messages" aria-live="polite" role="log"></div>
+      <div class="table-board card" style="height:260px">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+          <div id="dealerBadge" class="dealer-badge" style="display:none">D</div>
+          <div style="font-weight:700" id="tableTitle">Texas Hold'em</div>
+        </div>
 
-      <div class="typing" id="typing"></div>
+        <div class="community" id="community">
+          <div class="card-spot">--</div>
+          <div class="card-spot">--</div>
+          <div class="card-spot">--</div>
+          <div class="card-spot">--</div>
+          <div class="card-spot">--</div>
+        </div>
 
-      <div class="controls">
-        <input id="messageInput" class="message" placeholder="Type a message..." maxlength="1000" />
-        <button id="sendBtn">Send</button>
-        <button id="clearBtn" title="Clear local messages">Clear</button>
+        <div style="margin-top:6px" class="small">Dealer rotates each hand</div>
       </div>
 
-      <div class="hint" style="margin-top:8px">
-        Tip: to PM someone type <code>@username hello</code>. The last 100 messages are available when you join.
+      <div style="margin-top:12px">
+        <div class="small">Seats</div>
+        <div class="seats" id="seats"></div>
       </div>
+
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
+        <div class="small">Player actions</div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+          <button id="foldBtn" class="btn">Fold</button>
+          <button id="callBtn" class="btn">Check/Call</button>
+          <input id="betAmount" type="number" min="1" value="20" style="width:90px"/>
+          <button id="betBtn" class="btn">Bet/Raise</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Players / Seats</div>
+        <div id="playersList" class="players-list"></div>
+      </div>
+
     </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    (() => {
-      const socket = io();
+    const socket = io();
 
-      // DOM
-      const usernameInput = document.getElementById('usernameInput');
-      const setUsernameBtn = document.getElementById('setUsernameBtn');
-      const usersList = document.getElementById('usersList');
-      const messagesDiv = document.getElementById('messages');
-      const myNameSpan = document.getElementById('myName');
-      const messageInput = document.getElementById('messageInput');
-      const sendBtn = document.getElementById('sendBtn');
-      const typingDiv = document.getElementById('typing');
-      const clearBtn = document.getElementById('clearBtn');
-      const onlineCount = document.getElementById('onlineCount');
+    // DOM
+    const usernameInput = document.getElementById('username');
+    const setnameBtn = document.getElementById('setname');
+    const becomeOwnerBtn = document.getElementById('becomeOwner');
+    const sitBtn = document.getElementById('sitBtn');
+    const seatNumInput = document.getElementById('seatNum');
+    const buyInInput = document.getElementById('buyIn');
+    const standBtn = document.getElementById('standBtn');
+    const startHandBtn = document.getElementById('startHand');
+    const kickBtn = document.getElementById('kickBtn');
 
-      let myUsername = null;
-      let typingTimer = null;
+    const seatsDiv = document.getElementById('seats');
+    const communityDiv = document.getElementById('community');
+    const tablePhase = document.getElementById('tablePhase');
+    const potSpan = document.getElementById('pot');
+    const blindsText = document.getElementById('blindsText');
+    const chatDiv = document.getElementById('chat');
+    const chatMsg = document.getElementById('chatMsg');
+    const sendChatBtn = document.getElementById('sendChat');
+    const dealerBadge = document.getElementById('dealerBadge');
+    const foldBtn = document.getElementById('foldBtn');
+    const callBtn = document.getElementById('callBtn');
+    const betBtn = document.getElementById('betBtn');
+    const betAmountInput = document.getElementById('betAmount');
+    const playersList = document.getElementById('playersList');
 
-      function addSystem(text) {
+    let myUsername = null;
+    let mySeat = null;
+    let tableOwner = null;
+
+    // simple chat
+    sendChatBtn.onclick = () => {
+      const t = chatMsg.value.trim();
+      if (!t) return;
+      socket.emit('chat', t);
+      chatMsg.value = '';
+    };
+
+    socket.on('connect', () => {
+      appendChat('Connected to server');
+    });
+
+    // set username
+    setnameBtn.onclick = () => {
+      const name = usernameInput.value.trim();
+      if (!name) return alert('enter name');
+      socket.emit('set username', name, (res) => {
+        if (!res || !res.ok) return alert('error: ' + (res && res.error));
+        myUsername = res.username;
+        appendChat('username set: ' + myUsername);
+      });
+    };
+
+    becomeOwnerBtn.onclick = () => {
+      socket.emit('become owner', (res) => {
+        if (!res || !res.ok) return alert('cant become owner');
+        appendChat('you are table owner');
+      });
+    };
+
+    sitBtn.onclick = () => {
+      const seat = Number(seatNumInput.value);
+      const buyIn = Number(buyInInput.value);
+      socket.emit('sit', { seat, buyIn }, (res) => {
+        if (!res || !res.ok) return alert('sit failed: ' + (res && res.error));
+        appendChat('sat at ' + seat);
+      });
+    };
+
+    standBtn.onclick = () => {
+      socket.emit('stand', (res) => {
+        appendChat('stood up');
+      });
+    };
+
+    startHandBtn.onclick = () => {
+      socket.emit('start hand', (res) => {
+        if (!res || !res.ok) return alert('start failed: ' + (res && res.error));
+        appendChat('hand started');
+      });
+    };
+
+    kickBtn.onclick = () => {
+      const s = Number(prompt('seat index to kick (0-5)'));
+      if (isNaN(s)) return;
+      socket.emit('kick', s, (res) => {
+        appendChat('kick command sent');
+      });
+    };
+
+    // actions
+    foldBtn.onclick = () => socket.emit('action', { type: 'fold' }, (r)=>{});
+    callBtn.onclick = () => socket.emit('action', { type: 'check_call' }, (r)=>{});
+    betBtn.onclick = () => {
+      const amt = Number(betAmountInput.value);
+      socket.emit('action', { type: 'bet_raise', amount: amt }, (r)=>{ if (r && r.error) alert(r.error);});
+    };
+
+    // server-sent table state
+    socket.on('table state', (t) => {
+      // update UI
+      tablePhase.textContent = t.phase;
+      potSpan.textContent = t.pot || 0;
+      blindsText.textContent = (t.smallBlind || 10) + ' / ' + (t.bigBlind || 20);
+      // render community
+      const com = t.community || [];
+      const spots = communityDiv.querySelectorAll('.card-spot');
+      for (let i=0;i<5;i++) {
+        spots[i].textContent = com[i] || '--';
+      }
+      // render seats
+      seatsDiv.innerHTML = '';
+      playersList.innerHTML = '';
+      mySeat = null;
+      for (let i=0;i< (t.seats ? t.seats.length : 0); i++) {
+        const s = t.seats[i];
         const div = document.createElement('div');
-        div.className = 'system';
-        div.textContent = text;
-        messagesDiv.appendChild(div);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      }
-
-      function addMessage(msg, options = {}) {
-        const div = document.createElement('div');
-        div.className = 'msg' + (options.me ? ' me' : '');
-        const meta = document.createElement('div');
-        meta.className = 'meta';
-        const time = new Date(msg.time || Date.now());
-        const ts = time.toLocaleTimeString();
-        if (msg.system) {
-          div.className = 'system';
-          div.textContent = msg.text + ' — ' + ts;
-          messagesDiv.appendChild(div);
-          messagesDiv.scrollTop = messagesDiv.scrollHeight;
-          return;
-        }
-        if (msg.private) {
-          meta.textContent = `[PM] ${msg.from} → ${msg.to} · ${ts}`;
-        } else {
-          meta.textContent = `${msg.from} · ${ts}`;
-        }
-        const textEl = document.createElement('div');
-        textEl.className = 'text';
-        textEl.textContent = msg.text;
-        div.appendChild(meta);
-        div.appendChild(textEl);
-        if (msg.private) {
-          const badge = document.createElement('span');
-          badge.className = 'private-badge';
-          badge.textContent = 'private';
-          meta.appendChild(badge);
-        }
-        messagesDiv.appendChild(div);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      }
-
-      function renderUsers(list) {
-        usersList.innerHTML = '';
-        list.forEach((u) => {
-          const div = document.createElement('div');
-          div.className = 'user';
-          div.textContent = u;
-          const btn = document.createElement('button');
-          btn.textContent = 'PM';
-          btn.style.padding = '6px';
-          btn.style.fontSize = '12px';
-          btn.onclick = () => {
-            messageInput.value = `@${u} `;
-            messageInput.focus();
-          };
-          div.appendChild(btn);
-          usersList.appendChild(div);
-        });
-        onlineCount.textContent = list.length;
-      }
-
-      // Set username
-      setUsernameBtn.addEventListener('click', () => {
-        const candidate = usernameInput.value.trim();
-        if (!candidate) return alert('enter a username');
-        socket.emit('set username', candidate, (res) => {
-          if (!res || !res.ok) {
-            alert('Username failed: ' + (res && res.error ? res.error : 'unknown'));
-            return;
+        div.className = 'seat';
+        if (s) {
+          const name = document.createElement('div'); name.className = 'name'; name.textContent = s.username;
+          const chips = document.createElement('div'); chips.className='small'; chips.textContent = 'Chips: ' + s.chips;
+          const seatInfo = document.createElement('div'); seatInfo.className='small'; seatInfo.textContent = 'Seat ' + i + (s.currentBet ? ' • Bet: ' + s.currentBet : '');
+          div.appendChild(name); div.appendChild(chips); div.appendChild(seatInfo);
+          // reveal hole only for owner of that seat
+          if (s.hole) {
+            const h = document.createElement('div'); h.style.display='flex'; h.style.gap='6px';
+            for (const c of s.hole) {
+              const el = document.createElement('div'); el.className='hole'; el.textContent = c;
+              h.appendChild(el);
+            }
+            div.appendChild(h);
           }
-          myUsername = res.username;
-          myNameSpan.textContent = 'you: ' + myUsername;
-          usernameInput.value = '';
-        });
-      });
-
-      usernameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') setUsernameBtn.click();
-      });
-
-      // Send message
-      function sendMessage() {
-        const txt = messageInput.value.trim();
-        if (!txt) return;
-        socket.emit('chat message', txt, (ack) => {
-          if (!ack || !ack.ok) {
-            // Could show UI error
-            console.warn('msg not sent', ack);
-          } else {
-            // If local echo is needed for public messages, server will broadcast it back.
-            // For PMs, we already receive the private message event back from the server.
+          if (t.dealerIndex === i) {
+            const d = document.createElement('div'); d.className='small'; d.textContent = 'Dealer';
+            div.appendChild(d);
           }
-        });
-        messageInput.value = '';
-        socket.emit('typing', false);
-      }
-
-      sendBtn.addEventListener('click', sendMessage);
-      messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendMessage();
+          playersList.appendChild(div);
         } else {
-          socket.emit('typing', true);
-          clearTimeout(typingTimer);
-          typingTimer = setTimeout(() => {
-            socket.emit('typing', false);
-          }, 800);
+          const empty = document.createElement('div');
+          empty.className = 'small';
+          empty.textContent = 'empty (seat ' + i + ')';
+          div.appendChild(empty);
         }
-      });
-
-      clearBtn.addEventListener('click', () => {
-        messagesDiv.innerHTML = '';
-      });
-
-      // Socket listeners
-      socket.on('connect', () => {
-        addSystem('Connected to server');
-      });
-
-      socket.on('disconnect', () => {
-        addSystem('Disconnected from server');
-        myNameSpan.textContent = 'not signed in';
-        myUsername = null;
-      });
-
-      socket.on('history', (history) => {
-        history.forEach(m => {
-          if (m.system) addSystem(m.text);
-          else addMessage(m, { me: m.from === myUsername });
-        });
-      });
-
-      socket.on('users', (list) => {
-        renderUsers(list);
-      });
-
-      socket.on('system message', (m) => {
-        if (m && m.text) addSystem(m.text);
-      });
-
-      socket.on('chat message', (m) => {
-        addMessage(m, { me: m.from === myUsername });
-      });
-
-      socket.on('private message', (m) => {
-        addMessage(m, { me: m.from === myUsername });
-      });
-
-      socket.on('typing', (data) => {
-        // show short typing indicator
-        if (!data || !data.username) return;
-        typingDiv.textContent = data.typing ? `${data.username} is typing…` : '';
-      });
-
-      // Minor UX: autofill username from localStorage
-      const stored = localStorage.getItem('chat_username');
-      if (stored) {
-        usernameInput.value = stored;
+        seatsDiv.appendChild(div);
       }
+      // dealer badge
+      if (t.dealerIndex !== null && t.seats[t.dealerIndex]) {
+        dealerBadge.style.display = 'inline-block';
+      } else dealerBadge.style.display = 'none';
 
-      // When server tells us our username was accepted, store
-      // We'll intercept the success via set username callback above — store there too.
-      const originalSet = setUsernameBtn.onclick;
-      // store when we get a username successfully by listening to 'users' update only if myName is set
-      // Simpler: when myName changes above, set localStorage
-      const obs = new MutationObserver(() => {
-        if (myUsername) localStorage.setItem('chat_username', myUsername);
-      });
-      obs.observe(myNameSpan, { childList: true, subtree: true });
-    })();
+      // show/hide owner controls
+      // we can't easily know if we're the owner from client, but server includes owner id as socket id; the client cannot see socket id directly.
+      // For simplicity: if my username matches owner username in seats mapping, assume owner (owner feature limited).
+      // Not perfect: owner is socket id; we don't know mapping. We'll show owner controls always and server will reject unauthorized calls.
+    });
+
+    // chat messages (server doesn't implement chat routing in server.js above; just show locally)
+    socket.on('lobby', (m) => {
+      appendChat('Server: ' + (m.message || JSON.stringify(m)));
+    });
+
+    function appendChat(t) {
+      const d = document.createElement('div');
+      d.textContent = t;
+      chatDiv.appendChild(d);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    // debug prints
+    socket.on('connect_error', (e) => appendChat('connect error: ' + e.message));
   </script>
 </body>
 </html>
